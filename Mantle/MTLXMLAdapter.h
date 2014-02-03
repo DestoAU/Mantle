@@ -9,8 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "DDXML.h"
 #import "DDXMLNode.h"
-
-@class MTLModel;
+#import "MTLModelProtocol.h"
 
 @protocol MTLXMLSerializing
 @required
@@ -28,15 +27,15 @@
 
 @interface MTLXMLAdapter : NSObject
 
-@property (nonatomic, strong, readonly) MTLModel<MTLXMLSerializing> *model;
+@property (nonatomic, strong, readonly) NSObject<MTLModel, MTLXMLSerializing> *model;
 
 + (id)modelOfClass:(Class)modelClass fromXMLNode:(DDXMLNode *)xmlNode error:(NSError **)error;
 
-+ (DDXMLElement *)XMLElementFromModel:(MTLModel<MTLXMLSerializing> *)model;
++ (DDXMLElement *)XMLElementFromModel:(NSObject<MTLModel, MTLXMLSerializing> *)model;
 
 - (id)initWithXMLNode:(DDXMLNode*)node modelClass:(Class)modelClass error:(NSError **)error;
 
-- (id)initWithModel:(MTLModel<MTLXMLSerializing> *)model;
+- (id)initWithModel:(NSObject<MTLModel, MTLXMLSerializing> *)model;
 
 - (DDXMLElement *)XMLElement;
 

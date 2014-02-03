@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class MTLModel;
+#import "MTLModelProtocol.h"
 
 // A MTLModel object that supports being parsed from and serialized to JSON.
 @protocol MTLJSONSerializing
@@ -68,12 +67,12 @@ extern const NSInteger MTLJSONAdapterErrorInvalidJSONDictionary;
 
 // The model object that the receiver was initialized with, or that the receiver
 // parsed from a JSON dictionary.
-@property (nonatomic, strong, readonly) MTLModel<MTLJSONSerializing> *model;
+@property (nonatomic, strong, readonly) NSObject<MTLModel, MTLJSONSerializing> * model;
 
 // Attempts to parse a JSON dictionary into a model object.
 //
-// modelClass     - The MTLModel subclass to attempt to parse from the JSON.
-//                  This class must conform to <MTLJSONSerializing>. This
+// modelClass     - The subclass to attempt to parse from the JSON.
+//                  This class must conform to <MTLModel, MTLJSONSerializing>. This
 //                  argument must not be nil.
 // JSONDictionary - A dictionary representing JSON data. This should match the
 //                  format returned by NSJSONSerialization. If this argument is
@@ -91,7 +90,7 @@ extern const NSInteger MTLJSONAdapterErrorInvalidJSONDictionary;
 //         nil.
 //
 // Returns a JSON dictionary, or nil if a serialization error occurred.
-+ (NSDictionary *)JSONDictionaryFromModel:(MTLModel<MTLJSONSerializing> *)model;
++ (NSDictionary *)JSONDictionaryFromModel:(NSObject<MTLModel, MTLJSONSerializing> *)model;
 
 // Initializes the receiver by attempting to parse a JSON dictionary into
 // a model object.
@@ -100,8 +99,8 @@ extern const NSInteger MTLJSONAdapterErrorInvalidJSONDictionary;
 //                  format returned by NSJSONSerialization. If this argument is
 //                  nil, the method returns nil and an error with code
 //                  MTLJSONAdapterErrorInvalidJSONDictionary.
-// modelClass     - The MTLModel subclass to attempt to parse from the JSON.
-//                  This class must conform to <MTLJSONSerializing>. This
+// modelClass     - The NSObject subclass to attempt to parse from the JSON.
+//                  This class must conform to <MTLModel, MTLJSONSerializing>. This
 //                  argument must not be nil.
 // error          - If not NULL, this may be set to an error that occurs during
 //                  parsing or initializing an instance of `modelClass`.
@@ -114,7 +113,7 @@ extern const NSInteger MTLJSONAdapterErrorInvalidJSONDictionary;
 //
 // model - The model to use for JSON serialization. This argument must not be
 //         nil.
-- (id)initWithModel:(MTLModel<MTLJSONSerializing> *)model;
+- (id)initWithModel:(NSObject<MTLModel, MTLJSONSerializing> *)model;
 
 // Serializes the receiver's `model` into JSON.
 //

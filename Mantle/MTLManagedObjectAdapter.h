@@ -7,8 +7,7 @@
 //
 
 #import <CoreData/CoreData.h>
-
-@class MTLModel;
+#import "MTLModelProtocol.h"
 
 // A MTLModel object that supports being serialized to and from Core Data as an
 // NSManagedObject.
@@ -173,6 +172,6 @@ extern const NSInteger MTLManagedObjectAdapterErrorUnsupportedRelationshipClass;
 //           argument must not be nil.
 // error   - If not NULL, this may be set to an error that occurs during
 //           serialization or insertion.
-+ (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context error:(NSError **)error;
++ (id)managedObjectFromModel:(NSObject<NSObject, MTLModel, MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context error:(NSError **)error;
 
 @end

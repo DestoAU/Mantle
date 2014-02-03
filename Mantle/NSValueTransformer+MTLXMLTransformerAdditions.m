@@ -7,7 +7,7 @@
 //
 
 #import "NSValueTransformer+MTLXMLTransformerAdditions.h"
-#import "MTLModel.h"
+#import "MTLModelProtocol.h"
 #import "MTLValueTransformer.h"
 #import "MTLXMLAdapter.h"
 
@@ -95,7 +95,7 @@
 }
 
 + (NSValueTransformer *)mtl_XMLTransformerWithModelClass:(Class)modelClass {
-	NSParameterAssert([modelClass isSubclassOfClass:MTLModel.class]);
+	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLModel)]);
 	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLXMLSerializing)]);
     
 	return [MTLValueTransformer
@@ -104,10 +104,10 @@
 //                NSAssert([nodes[0] isKindOfClass:DDXMLNode.class], @"Expected a DDXMLNode, got: %@", nodes[0]);
                 return [MTLXMLAdapter modelOfClass:modelClass fromXMLNode:nodes[0] error:NULL];
             }
-            reverseBlock:^ id (MTLModel<MTLXMLSerializing> *model) {
+            reverseBlock:^ id (NSObject<MTLModel, MTLXMLSerializing> *model) {
                 if (model == nil) return nil;
                 
-                NSAssert([model isKindOfClass:MTLModel.class], @"Expected a MTLModel object, got %@", model);
+                NSAssert([model conformsToProtocol:@protocol(MTLModel)], @"Expected a model object conforming to <MTLModel>, got %@", model);
                 NSAssert([model conformsToProtocol:@protocol(MTLXMLSerializing)], @"Expected a model object conforming to <MTLXMLSerializing>, got %@", model);
                 
                 return @[ [MTLXMLAdapter XMLElementFromModel:model] ];
@@ -134,10 +134,10 @@
             reverseBlock:^ id (NSArray *models) {
                 if (models == nil) return nil;
                 
-                NSAssert([models isKindOfClass:NSArray.class], @"Expected a array of MTLModels, got: %@", models);
+                NSAssert([models isKindOfClass:NSArray.class], @"Expected a array of model objects conforming to MTLModel, got: %@", models);
                 
                 NSMutableArray *xmlNodes = [NSMutableArray arrayWithCapacity:models.count];
-                for (MTLModel *model in models) {
+                for (NSObject<MTLModel> *model in models) {
                     DDXMLNode *node = [xmlTransformer reverseTransformedValue:model];
                     if (node == nil) continue;
                     
@@ -170,10 +170,10 @@
             reverseBlock:^ id (NSArray *models) {
                 if (models == nil) return nil;
                 
-                NSAssert([models isKindOfClass:NSArray.class], @"Expected a array of MTLModels, got: %@", models);
+                NSAssert([models isKindOfClass:NSArray.class], @"Expected an array of model objects conforming to <MTLModel>, got: %@", models);
                 
                 NSMutableArray *xmlNodes = [NSMutableArray arrayWithCapacity:models.count];
-                for (MTLModel *model in models) {
+                for (NSObject<MTLModel> *model in models) {
                     NSValueTransformer *xmlTransformer = [self mtl_XMLTransformerWithModelClass:[model class]];
                     DDXMLNode *node = [xmlTransformer reverseTransformedValue:model];
                     if (node == nil) continue;

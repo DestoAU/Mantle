@@ -7,7 +7,6 @@
 //
 
 #import "MTLJSONAdapter.h"
-#import "MTLModel.h"
 #import "MTLReflection.h"
 
 NSString * const MTLJSONAdapterErrorDomain = @"MTLJSONAdapterErrorDomain";
@@ -22,7 +21,7 @@ static NSString * const MTLJSONAdapterThrownExceptionErrorKey = @"MTLJSONAdapter
 
 @interface MTLJSONAdapter ()
 
-// The MTLModel subclass being parsed, or the class of `model` if parsing has
+// The NSObject subclass being parsed, or the class of `model` if parsing has
 // completed.
 @property (nonatomic, strong, readonly) Class modelClass;
 
@@ -47,7 +46,7 @@ static NSString * const MTLJSONAdapterThrownExceptionErrorKey = @"MTLJSONAdapter
 	return adapter.model;
 }
 
-+ (NSDictionary *)JSONDictionaryFromModel:(MTLModel<MTLJSONSerializing> *)model {
++ (NSDictionary *)JSONDictionaryFromModel:(NSObject<MTLModel, MTLJSONSerializing> *)model {
 	MTLJSONAdapter *adapter = [[self alloc] initWithModel:model];
 	return adapter.JSONDictionary;
 }
@@ -61,7 +60,7 @@ static NSString * const MTLJSONAdapterThrownExceptionErrorKey = @"MTLJSONAdapter
 
 - (id)initWithJSONDictionary:(NSDictionary *)JSONDictionary modelClass:(Class)modelClass error:(NSError **)error {
 	NSParameterAssert(modelClass != nil);
-	NSParameterAssert([modelClass isSubclassOfClass:MTLModel.class]);
+	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLModel)]);
 	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLJSONSerializing)]);
 
 	if (JSONDictionary == nil || ![JSONDictionary isKindOfClass:NSDictionary.class]) {
@@ -90,7 +89,7 @@ static NSString * const MTLJSONAdapterThrownExceptionErrorKey = @"MTLJSONAdapter
 			return nil;
 		}
 
-		NSAssert([modelClass isSubclassOfClass:MTLModel.class], @"Class %@ returned from +classForParsingJSONDictionary: is not a subclass of MTLModel", modelClass);
+		NSAssert([modelClass conformsToProtocol:@protocol(MTLModel)], @"Class %@ returned from +classForParsingJSONDictionary: does not conform to <MTLModel>", modelClass);
 		NSAssert([modelClass conformsToProtocol:@protocol(MTLJSONSerializing)], @"Class %@ returned from +classForParsingJSONDictionary: does not conform to <MTLJSONSerializing>", modelClass);
 	}
 
@@ -147,7 +146,7 @@ static NSString * const MTLJSONAdapterThrownExceptionErrorKey = @"MTLJSONAdapter
 	return self;
 }
 
-- (id)initWithModel:(MTLModel<MTLJSONSerializing> *)model {
+- (id)initWithModel:(NSObject<MTLModel, MTLJSONSerializing> *)model {
 	NSParameterAssert(model != nil);
 
 	self = [super init];

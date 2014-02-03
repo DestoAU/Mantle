@@ -38,7 +38,7 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
 	return adapter.model;
 }
 
-+ (DDXMLElement *)XMLElementFromModel:(MTLModel<MTLXMLSerializing> *)model
++ (id)XMLElementFromModel:(NSObject<MTLModel,MTLXMLSerializing> *)model
 {
 	MTLXMLAdapter *adapter = [[self alloc] initWithModel:model];
 	return [adapter XMLElement];
@@ -47,7 +47,7 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
 - (id)initWithXMLNode:(DDXMLNode*)xmlNode modelClass:(Class)modelClass error:(NSError **)error
 {
 	NSParameterAssert(modelClass != nil);
-	NSParameterAssert([modelClass isSubclassOfClass:MTLModel.class]);
+	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLModel)]);
 	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLXMLSerializing)]);
     
 	if (xmlNode == nil) return nil;
@@ -67,7 +67,7 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
 			return nil;
 		}
         
-		NSAssert([modelClass isSubclassOfClass:MTLModel.class], @"Class %@ returned from +classForParsingXML: is not a subclass of MTLModel", modelClass);
+		NSAssert([modelClass conformsToProtocol:@protocol(MTLModel)], @"Class %@ returned from +classForParsingXML: does not conform to <MTLModel>", modelClass);
 		NSAssert([modelClass conformsToProtocol:@protocol(MTLXMLSerializing)], @"Class %@ returned from +classForParsingXML: does not conform to <MTLXMLSerializing>", modelClass);
 	}
     
@@ -146,7 +146,7 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
     return self;
 }
 
-- (id)initWithModel:(MTLModel<MTLXMLSerializing> *)model {
+- (id)initWithModel:(NSObject<MTLModel,MTLXMLSerializing> *)model {
 	NSParameterAssert(model != nil);
     
 	self = [super init];

@@ -7,8 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class MTLModel;
+#import "MTLModelProtocol.h"
 
 @protocol MTLQuerySerializing
 
@@ -24,15 +23,15 @@
 
 @interface MTLQueryAdapter : NSObject
 
-@property (nonatomic, strong, readonly) MTLModel<MTLQuerySerializing> *model;
+@property (nonatomic, strong, readonly) NSObject<MTLModel, MTLQuerySerializing> *model;
 
 //+ (id)modelOfClass:(Class)modelClass fromQueryString:(NSString *)queryString error:(NSError **)error;
 
-+ (NSString *)queryStringFromModel:(MTLModel<MTLQuerySerializing> *)model;
++ (NSString *)queryStringFromModel:(NSObject<MTLModel, MTLQuerySerializing> *)model;
 
 //- (id)initWithQueryString:(NSString *)querystring modelClass:(Class)modelClass error:(NSError **)error;
 
-- (id)initWithModel:(MTLModel<MTLQuerySerializing> *)model;
+- (id)initWithModel:(NSObject<MTLModel, MTLQuerySerializing> *)model;
 
 - (NSString *)queryString;
 

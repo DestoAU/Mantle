@@ -8,7 +8,7 @@
 
 #import "NSValueTransformer+MTLPredefinedTransformerAdditions.h"
 #import "MTLJSONAdapter.h"
-#import "MTLModel.h"
+#import "MTLModelProtocol.h"
 #import "MTLValueTransformer.h"
 
 NSString * const MTLURLValueTransformerName = @"MTLURLValueTransformerName";
@@ -45,7 +45,7 @@ NSString * const MTLBooleanValueTransformerName = @"MTLBooleanValueTransformerNa
 #pragma mark Customizable Transformers
 
 + (NSValueTransformer *)mtl_JSONDictionaryTransformerWithModelClass:(Class)modelClass {
-	NSParameterAssert([modelClass isSubclassOfClass:MTLModel.class]);
+	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLModel)]);
 	NSParameterAssert([modelClass conformsToProtocol:@protocol(MTLJSONSerializing)]);
 
 	return [MTLValueTransformer
@@ -59,7 +59,7 @@ NSString * const MTLBooleanValueTransformerName = @"MTLBooleanValueTransformerNa
 		reverseBlock:^ id (id model) {
 			if (model == nil) return nil;
 
-			NSAssert([model isKindOfClass:MTLModel.class], @"Expected a MTLModel object, got %@", model);
+			NSAssert([model conformsToProtocol:@protocol(MTLModel)], @"Expected a model object conforming to <MTLModel> object, got %@", model);
 			NSAssert([model conformsToProtocol:@protocol(MTLJSONSerializing)], @"Expected a model object conforming to <MTLJSONSerializing>, got %@", model);
 
 			return [MTLJSONAdapter JSONDictionaryFromModel:model];
@@ -104,7 +104,7 @@ NSString * const MTLBooleanValueTransformerName = @"MTLBooleanValueTransformerNa
 					continue;
 				}
 
-				NSAssert([model isKindOfClass:MTLModel.class], @"Expected an MTLModel or an NSNull, got: %@", model);
+				NSAssert([model conformsToProtocol:@protocol(MTLModel)], @"Expected a model object conforming to MTLModel or an NSNull, got: %@", model);
 
 				NSDictionary *dict = [dictionaryTransformer reverseTransformedValue:model];
 				if (dict == nil) continue;

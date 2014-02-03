@@ -8,7 +8,6 @@
 
 #import "MTLManagedObjectAdapter.h"
 #import "EXTScope.h"
-#import "MTLModel.h"
 #import "MTLReflection.h"
 #import "NSArray+MTLManipulationAdditions.h"
 
@@ -67,7 +66,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 // Invoked from
 // +managedObjectFromModel:insertingIntoContext:processedObjects:error: after
 // the receiver's properties have been initialized.
-- (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error;
+- (id)managedObjectFromModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error;
 
 // Performs the actual work of serialization. This method is also invoked when
 // processing relationships, to create a new adapter (if needed) to handle them.
@@ -75,7 +74,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 // `processedObjects` is a dictionary mapping MTLModels to the NSManagedObjects
 // that have been created so far. It should remain alive for the full process
 // of serializing the top-level MTLModel.
-+ (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error;
++ (id)managedObjectFromModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error;
 
 // Looks up the NSValueTransformer that should be used for any attribute that
 // corresponds the given property key.
@@ -96,7 +95,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 
 // Looks at propertyKeysForManagedObjectUniquing and forms an NSPredicate
 // using the uniquing keys and the provided model.
-- (NSPredicate *)uniquingPredicateForModel:(MTLModel<MTLManagedObjectSerializing> *)model;
+- (NSPredicate *)uniquingPredicateForModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model;
 
 @end
 
@@ -137,7 +136,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 	NSManagedObjectContext *context = managedObject.managedObjectContext;
 
 	NSDictionary *managedObjectProperties = entity.propertiesByName;
-	MTLModel *model = [[self.modelClass alloc] init];
+	NSObject<MTLModel> *model = [[self.modelClass alloc] init];
 
 	// Pre-emptively consider this object processed, so that we don't get into
 	// any cycles when processing its relationships.
@@ -181,7 +180,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 					NSMutableArray *models = [NSMutableArray arrayWithCapacity:[relationshipCollection count]];
 
 					for (NSManagedObject *nestedObject in relationshipCollection) {
-						MTLModel *model = [self.class modelOfClass:nestedClass fromManagedObject:nestedObject processedObjects:processedObjects error:error];
+						NSObject<MTLModel> *model = [self.class modelOfClass:nestedClass fromManagedObject:nestedObject processedObjects:processedObjects error:error];
 						if (model == nil) return nil;
 						
 						[models addObject:model];
@@ -201,7 +200,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 
 				if (nestedObject == nil) return YES;
 
-				MTLModel *model = [self.class modelOfClass:nestedClass fromManagedObject:nestedObject processedObjects:processedObjects error:error];
+				NSObject<MTLModel> *model = [self.class modelOfClass:nestedClass fromManagedObject:nestedObject processedObjects:processedObjects error:error];
 				if (model == nil) return NO;
 
 				return setValueForKey(propertyKey, model);
@@ -294,7 +293,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 	return [adapter modelFromManagedObject:managedObject processedObjects:processedObjects error:error];
 }
 
-- (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error {
+- (id)managedObjectFromModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error {
 	NSParameterAssert(model != nil);
 	NSParameterAssert(context != nil);
 	NSParameterAssert(processedObjects != nil);
@@ -399,7 +398,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 		};
 
 		NSManagedObject * (^objectForRelationshipFromModel)(id) = ^ id (id model) {
-			if (![model isKindOfClass:MTLModel.class] || ![model conformsToProtocol:@protocol(MTLManagedObjectSerializing)]) {
+			if (![model conformsToProtocol:@protocol(MTLModel)] || ![model conformsToProtocol:@protocol(MTLManagedObjectSerializing)]) {
 				NSString *failureReason = [NSString stringWithFormat:NSLocalizedString(@"Property of class %@ cannot be encoded into an NSManagedObject.", @""), [model class]];
 
 				NSDictionary *userInfo = @{
@@ -439,7 +438,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 					relationshipCollection = [NSMutableSet set];
 				}
 
-				for (MTLModel *model in value) {
+				for (NSObject<MTLModel> *model in value) {
 					NSManagedObject *nestedObject = objectForRelationshipFromModel(model);
 					if (nestedObject == nil) return NO;
 
@@ -516,7 +515,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 	return managedObject;
 }
 
-+ (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context error:(NSError **)error {
++ (id)managedObjectFromModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model insertingIntoContext:(NSManagedObjectContext *)context error:(NSError **)error {
 	CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
 
 	// Compare MTLModel keys using pointer equality, not -isEqual:.
@@ -532,7 +531,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 	return [self managedObjectFromModel:model insertingIntoContext:context processedObjects:processedObjects error:error];
 }
 
-+ (id)managedObjectFromModel:(MTLModel<MTLManagedObjectSerializing> *)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error {
++ (id)managedObjectFromModel:(id<NSObject, MTLModel, MTLManagedObjectSerializing>)model insertingIntoContext:(NSManagedObjectContext *)context processedObjects:(CFMutableDictionaryRef)processedObjects error:(NSError **)error {
 	NSParameterAssert(model != nil);
 	NSParameterAssert(context != nil);
 	NSParameterAssert(processedObjects != nil);
@@ -581,7 +580,7 @@ static const NSInteger MTLManagedObjectAdapterErrorExceptionThrown = 1;
 	}
 }
 
-- (NSPredicate *)uniquingPredicateForModel:(MTLModel<MTLManagedObjectSerializing> *)model {
+- (NSPredicate *)uniquingPredicateForModel:(NSObject<MTLModel, MTLManagedObjectSerializing> *)model {
 	if (![self.modelClass respondsToSelector:@selector(propertyKeysForManagedObjectUniquing)]) return nil;
 
 	NSSet *propertyKeys = [self.modelClass propertyKeysForManagedObjectUniquing];

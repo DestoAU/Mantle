@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 GitHub. All rights reserved.
 //
 
-#import "MTLModel.h"
-
 #import "NSError+MTLModelException.h"
 
 // The domain for errors originating from MTLModel.

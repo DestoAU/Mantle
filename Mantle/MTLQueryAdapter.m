@@ -10,6 +10,7 @@
 #import "MTLModel.h"
 #import "MTLReflection.h"
 #import "MTLValueTransformer.h"
+#import "NSString+DSURLEscape.h"
 
 NSString * const MTLQueryAdapterErrorDomain = @"MTLQueryAdapterErrorDomain";
 //const NSInteger MTLXMLAdapterErrorNoClassFound = 2;
@@ -43,7 +44,7 @@ static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapter
     //	return adapter.model;
 }
 
-+ (NSString *)queryStringFromModel:(MTLModel<MTLQuerySerializing> *)model
++ (NSString *)queryStringFromModel:(NSObject<MTLModel,MTLQuerySerializing> *)model
 {
 	MTLQueryAdapter *adapter = [[self alloc] initWithModel:model];
 	return [adapter queryString];
@@ -112,7 +113,7 @@ static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapter
 //
 //}
 
-- (id)initWithModel:(MTLModel<MTLQuerySerializing> *)model
+- (id)initWithModel:(NSObject<MTLModel,MTLQuerySerializing> *)model
 {
 	NSParameterAssert(model != nil);
     
@@ -146,11 +147,11 @@ static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapter
     {
         id object = [dictionary objectForKey:key];
         
-        NSString *encodedKey = [key stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSString *encodedKey = [key stringByURLEscaping];
         
         // straight strings
         if ([object isKindOfClass:[NSString class]])
-            [queryArray addObject:[NSString stringWithFormat:@"%@=%@", encodedKey, [((NSString *)object) stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+            [queryArray addObject:[NSString stringWithFormat:@"%@=%@", encodedKey, [((NSString *)object) stringByURLEscaping]]];
         
         // numbers
         else if ([object isKindOfClass:[NSNumber class]])
@@ -173,7 +174,7 @@ static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapter
                 
                 // straight strings
                 if ([innerObject isKindOfClass:[NSString class]])
-                    [queryArray addObject:[NSString stringWithFormat:@"%@.%lu=%@", encodedKey, (unsigned long)i+1, [((NSString *)innerObject) stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+                    [queryArray addObject:[NSString stringWithFormat:@"%@.%lu=%@", encodedKey, (unsigned long)i+1, [((NSString *)innerObject) stringByURLEscaping]]];
                 
                 // numbers
                 else if ([innerObject isKindOfClass:[NSNumber class]])
