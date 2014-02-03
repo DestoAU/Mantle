@@ -101,7 +101,7 @@
 	return [MTLValueTransformer
             reversibleTransformerWithForwardBlock:^ id (NSArray *nodes) {
                 if (nodes == nil || nodes.count == 0) return nil;
-                NSAssert([nodes[0] isKindOfClass:DDXMLNode.class], @"Expected a DDXMLNode, got: %@", nodes[0]);
+//                NSAssert([nodes[0] isKindOfClass:DDXMLNode.class], @"Expected a DDXMLNode, got: %@", nodes[0]);
                 return [MTLXMLAdapter modelOfClass:modelClass fromXMLNode:nodes[0] error:NULL];
             }
             reverseBlock:^ id (MTLModel<MTLXMLSerializing> *model) {
@@ -122,7 +122,7 @@
                 if (nodes == nil) return nil;
                 NSMutableArray *models = [NSMutableArray arrayWithCapacity:nodes.count];
                 for (DDXMLNode *child in nodes) {
-                    if ([child isKindOfClass:[DDXMLElement class]]) {
+                    if ([child isKindOfClass:[DDXMLElement class]] || [child kind] == DDXMLElementKind) {
                         id model = [xmlTransformer transformedValue:@[child] ];
                         if (model == nil) continue;
                         [models addObject:model];

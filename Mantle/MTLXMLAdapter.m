@@ -81,9 +81,13 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
     
     // Verify that the root XPath exists.  If it does not then do not return an object.
     NSMutableDictionary *dictionaryValue = [[NSMutableDictionary alloc] initWithCapacity:propertyKeys.count];
+    
+    NSDictionary *ns = nil;
+    if ([modelClass respondsToSelector:@selector(XMLNamespaceMappings)])
+        ns = [modelClass XMLNamespaceMappings];
 
     NSString *rootPath = [[modelClass XPathPrefix] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
-    NSArray *nodes = [xmlNode nodesForXPath:rootPath error:error];
+    NSArray *nodes = [xmlNode nodesForXPath:rootPath namespaceMappings:ns error:error];
     
     if (nodes == nil || [nodes count] == 0)
     {
@@ -96,7 +100,7 @@ static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterTh
 		if (keyPath == nil) continue;
         keyPath = [[modelClass XPathPrefix] stringByAppendingString:keyPath];
 
-		NSArray* nodes = [xmlNode nodesForXPath:keyPath error:error];
+		NSArray* nodes = [xmlNode nodesForXPath:keyPath namespaceMappings:ns error:error];
         if (nodes == nil || [nodes count] == 0) continue;
         
 

@@ -19,6 +19,7 @@
 @optional
 + (Class)classForParsingXML:(DDXMLNode *)xmlNode;
 + (NSValueTransformer *)JSONTransformerForKey:(NSString *)key;
++ (NSDictionary *)XMLNamespaceMappings;
 
 // used for manual reverse serializing
 - (DDXMLElement *)serializeToXMLElement;
