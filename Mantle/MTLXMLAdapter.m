@@ -17,7 +17,7 @@ NSString * const MTLXMLAdapterErrorDomain = @"MTLXMLAdapterErrorDomain";
 const NSInteger MTLXMLAdapterErrorNoClassFound = 2;
 
 // An exception was thrown and caught.
-static const NSInteger MTLXMLAdapterErrorExceptionThrown = 1;
+//static const NSInteger MTLXMLAdapterErrorExceptionThrown = 1;
 
 // Associated with the NSException that was caught.
 static NSString * const MTLXMLAdapterThrownExceptionErrorKey = @"MTLXMLAdapterThrownException";

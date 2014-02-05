@@ -19,7 +19,7 @@ NSString * const MTLQueryAdapterErrorDomain = @"MTLQueryAdapterErrorDomain";
 //static const NSInteger MTLXMLAdapterErrorExceptionThrown = 1;
 
 // Associated with the NSException that was caught.
-static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapterThrownException";
+//static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapterThrownException";
 
 @interface MTLQueryAdapter ()
 
