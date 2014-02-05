@@ -239,7 +239,7 @@ static NSString * const MTLQueryAdapterThrownExceptionErrorKey = @"MTLXMLAdapter
 {
 	NSParameterAssert(key != nil);
     
-	SEL selector = MTLSelectorWithKeyPattern(key, "queryStringTransformer");
+	SEL selector = MTLSelectorWithKeyPattern(key, "QueryStringTransformer");
 	if ([self.modelClass respondsToSelector:selector])
     {
 		NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self.modelClass methodSignatureForSelector:selector]];
