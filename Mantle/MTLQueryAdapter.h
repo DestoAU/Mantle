@@ -33,6 +33,7 @@
 
 - (id)initWithModel:(NSObject<MTLModel, MTLQuerySerializing> *)model;
 
+- (NSDictionary *)dictionary;
 - (NSString *)queryString;
 
 @end

@@ -20,3 +20,4 @@
 #import <Mantle/NSValueTransformer+MTLInversionAdditions.h>
 #import <Mantle/NSValueTransformer+MTLPredefinedTransformerAdditions.h>
 #import <Mantle/NSValueTransformer+MTLXMLTransformerAdditions.h>
+#import <Mantle/NSValueTransformer+MTLQueryStringTransformerAdditions.h>

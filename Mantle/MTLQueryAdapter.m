@@ -146,6 +146,8 @@ NSString * const MTLQueryAdapterErrorDomain = @"MTLQueryAdapterErrorDomain";
     for (NSString *key in [[dictionary allKeys] sortedArrayUsingSelector:@selector(compare:)])
     {
         id object = [dictionary objectForKey:key];
+        if ([object isEqual:[NSNull null]])
+            continue;
         
         NSString *encodedKey = [key stringByURLEscaping];
         
